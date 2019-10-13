@@ -6,6 +6,7 @@ import time
 import board
 import neopixel
 
+
 image_src = "images/fire.jpg"
 leds_pin = board.D18
 leds_num = 25
@@ -20,17 +21,17 @@ leds = neopixel.NeoPixel(leds_pin, leds_num, brightness = max_brightness, auto_w
 
 animation = Animation(image_src, leds_num, max_brightness, speed, intencivity)
 
-frame_ms = 1 // fps
+sleep_s = 1 // fps
 
 while True:
     animation.process()
     i = 0
     print(animation.active_row)
     for led in animation.active_row:
-        # print("led: ", i, led)
         leds[i] = led
-        i =+1
+        i +=1
+    # print(leds)
     leds.show()
-    time.sleep(frame_ms)
+    time.sleep(sleep_s)
 
 
