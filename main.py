@@ -25,6 +25,7 @@ frame_ms = 1 // fps
 while True:
     animation.process()
     i = 0
+    print(animation.active_row)
     for led in animation.active_row:
         leds[i] = led
         i =+1
