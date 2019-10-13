@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from animation import Animation
+from img2neopixel import Animation
 from random import randrange
 import time
 import board
@@ -9,10 +9,11 @@ import neopixel
 
 image_src = "images/fire2.jpg"
 leds_pin = board.D18
+
 leds_num = 25
-max_brightness = 1.0
-speed = 10 # rows per second 
-intencivity = 1 # new flame per second
+max_brightness = 0.3
+speed = 25 # rows per second 
+intencivity = 3 # new flame per second
 # fps = 2
 fps = 25
 
@@ -24,9 +25,9 @@ animation = Animation(image_src, leds_num, max_brightness, speed, intencivity)
 sleep_s = 1 / fps
 
 while True:
-    # print("frame:", animation.active_row)
     animation.process()
     i = 0
+    # print("ti")
     for led in animation.active_row:
         leds[i] = led
         i +=1
