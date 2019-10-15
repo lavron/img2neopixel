@@ -6,9 +6,12 @@ import datetime
 from PIL import Image
 import time
 
-import numpy as np
-
 color_scheme = 'RGBA'
+
+OFF = 0
+FIRE = 1
+FADEOUT = 2
+
 
 
 class Animation:
@@ -26,8 +29,6 @@ class Animation:
         self.image = self.image.resize((leds_num, int(leds_num * proportion * 10)))
         width, height = self.image.size
 
-
-
         pixdata =  self.image.load()
         for y in range(height):
             for x in range(width):
@@ -43,58 +44,52 @@ class Animation:
         self.ts =int(round(time.time() * 1000))
         self.frame_count = 0
 
-        self.intencivity_max = int(1/intencivity * 1.5 * 1000)
-        self.intencivity_min = int(1/intencivity * 0.5 * 1000)
+        self.ms_from, self.ms_to = int(1/intencivity * 0.5 * 1000), int(1/intencivity * 1.5 * 1000)
 
-        self.flame_next_in_ms = rand(self.intencivity_min, self.intencivity_max)
+        self._set_next_flame_time()
+
+        self.state = OFF
+        
+    def _set_next_flame_time(self):
+        self.flame_next_in_ms = rand(self.ms_from, self.ms_to)
         self.flamed_ms = 0
 
-    def add_image(self):
+    def _add_flame(self):
 
-        self.flame_next_in_ms = rand(self.intencivity_min, self.intencivity_max)
-        self.flamed_ms = 0
-
-        min_width = self.surface.width // 4
-        min_height = self.surface.height // 10
-
-        width = rand(min_width, self.surface.width)
-        height = rand(min_height, self.surface.height)
+        width = rand(self.surface.width // 3, self.surface.width)
+        height = rand(self.surface.height // 10, self.surface.height)
         size = (width, height)
         opacity = rand(63, int(self.brightness * 255)) 
         new_image =  self.image.copy().resize(size)
-        
-        # xy = (rand(0, self.surface.width - width), rand(0, self.surface.height - height))
-        xy = (rand(0, self.surface.width - width), 0)
+    
 
         bg = Image.new(color_scheme, self.surface.size, (0,0,0,0))
         bg.paste(self.surface, (0,0))
-        bg.paste(new_image, xy, mask=new_image)
+        bg.paste(new_image, (rand(0, self.surface.width - width), 0), mask=new_image)
 
         self.surface = bg
-        # self._screenshot(self.surface)
         del new_image, bg
 
-    def _screenshot(self, image, suffix = ''):
-        if suffix is not '':
-            suffix ="_" + suffix
-        filename = "img_"  + suffix + str(self.frame_count)
-        if color_scheme == 'RGBA':
-            format = "PNG"
-            filename +=  ".png"
-        else:
-            filename +=".jpg"
-            format = "JPEG"
-        image.save("images/tmp/" + filename, format=format)
+        self._set_next_flame_time()
 
     def process(self):
+            
         self.frame_count +=1
         ts = time.time() * 1000
         elapsed_ms = int(ts - self.ts)
-        move = round(elapsed_ms / self.row_ms)
+        if self.state == FADEOUT:
+            elapsed_ms = elapsed_ms *5
+
+        move = elapsed_ms // self.row_ms
 
         self.flamed_ms += elapsed_ms
 
         w, h = self.surface.size
+
+        if h <= move: # fadeout is finished
+            self.state = OFF
+            self.surface  = Image.new(color_scheme, self.image.size, (0,0,0,0))
+            return 
 
         for i in range(self.width):
             try: 
@@ -105,18 +100,24 @@ class Animation:
 
             except Exception as err: 
                 print(err)
-                print("i, move", i, move)
+                print("i, move:", i, move)
             
-        bg = Image.new(color_scheme, (w, h), (0,0,0,0))
 
         self.surface = self.surface.crop((0, move, w, h))
+        self.ts = ts 
 
+        if self.state == FADEOUT:
+            return
+
+        bg = Image.new(color_scheme, (w, h), (0,0,0,0))
         bg.paste(self.surface, (0,0) )
         self.surface = bg
-
-
-        if self.flamed_ms > self.flame_next_in_ms:
-            self.add_image()
-            
         del bg 
-        self.ts = ts 
+        
+        if self.flamed_ms > self.flame_next_in_ms:
+            self._add_flame()
+            
+        # self._screenshot(self.surface)
+
+
+    def _screenshot(self, image, suffix = ''):
