@@ -6,10 +6,7 @@ import datetime
 from PIL import Image
 import time
 
-
-
-def one_chance_from(value):
-    return 1 == rand(1, value)
+color_scheme = 'RGBA'
 
 
 class Animation:
@@ -19,7 +16,7 @@ class Animation:
 
         self.row_ms = 1000 / speed
         
-        self.image = Image.open(image_src).convert('RGB')
+        self.image = Image.open(image_src).convert(color_scheme)
         
         width, height = self.image.size
         proportion = height / width
@@ -28,7 +25,7 @@ class Animation:
         width, height = self.image.size
 
 
-        self.surface  = Image.new('RGB', (width, height * 10), (0,0,0))
+        self.surface  = Image.new(color_scheme, (width, height * 10), (0,0,0))
         self.width, self.height = self.surface.size
 
         self.active_row = [(0,0,0)] * self.width
@@ -52,21 +49,33 @@ class Animation:
         width = rand(min_width, self.surface.width)
         heigh = rand(min_heigh, self.surface.height)
         size = (width, heigh)
-        opacity = rand(1, int(self.brightness * 10)) / 10
-
+        opacity = rand(63, int(self.brightness * 255)) 
         new_image =  self.image.copy().resize(size)
-        bg = Image.new('RGB', self.surface.size, (0,0,0))
+        new_image.putalpha(opacity)
         xy = (rand(0, self.image.width - width), 0)
-        bg.paste(new_image, xy)
 
-        self.surface = Image.blend(self.surface, bg, opacity)
+        bg = Image.new(color_scheme, self.surface.size, (0,0,0,0))
+        bg.paste(self.surface, (0,0))
+        bg.paste(new_image, xy, mask=new_image)
 
-        # filename = "new_img_" + str(self.frame_count) + ".jpg"
-        # self.surface.save("images/tmp/" + filename, format="JPEG")
+
+        self.surface = bg
+
+        # self._screenshot(self.surface, 'after_op=' + str(opacity))
     
-        del new_image
+        del new_image, bg
 
-        # print("new image added")
+    def _screenshot(self, image, suffix = ''):
+        if suffix is not '':
+            suffix ="_" + suffix
+        filename = "new_img_" + str(self.frame_count) + suffix
+        if color_scheme == 'RGBA':
+            format = "PNG"
+            filename +=  ".png"
+        else:
+            filename +=".jpg"
+            format = "JPEG"
+        image.save("images/tmp/" + filename, format=format)
 
     def process(self):
         self.frame_count +=1
@@ -81,12 +90,21 @@ class Animation:
         for i in range(self.width):
             try: 
                 self.active_row[i] = self.surface.getpixel((i, move))
+                if len(self.active_row[i]) == 4:
+                    r,g, b, a = self.active_row[i]
+                    self.active_row[i] = (r, g, b)
+
             except Exception as err: 
                 print(err)
                 print("i, move", i, move)
             
-        bg = Image.new('RGB', (w, h), (0,0,0))
+        bg = Image.new(color_scheme, (w, h), (0,0,0,0))
+
+        self._screenshot(self.surface, '__before' +  str(self.surface.size))
         self.surface = self.surface.crop((0, move, w, h))
+        self._screenshot(self.surface, '_after' + str(self.surface.size) + str(move))
+        # self._screenshot(bg)
+
         bg.paste(self.surface, (0,0) )
         self.surface = bg
 
