@@ -11,9 +11,9 @@ image_src = "images/fire2.jpg"
 leds_pin = board.D18
 
 leds_num = 25
-max_brightness = 1.0
+max_brightness = 0.5
 speed = 25 # rows per second 
-intencivity = 6 # new flame per second
+intencivity = 1 # new flame per second
 # fps = 2
 fps = 25
 sleep_s = 1 / fps

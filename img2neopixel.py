@@ -6,6 +6,8 @@ import datetime
 from PIL import Image
 import time
 
+import numpy as np
+
 color_scheme = 'RGBA'
 
 
@@ -17,15 +19,24 @@ class Animation:
         self.row_ms = 1000 / speed
         
         self.image = Image.open(image_src).convert(color_scheme)
-        
         width, height = self.image.size
         proportion = height / width
+
 
         self.image = self.image.resize((leds_num, int(leds_num * proportion)))
         width, height = self.image.size
 
 
-        self.surface  = Image.new(color_scheme, (width, height * 10), (0,0,0))
+
+        pixdata =  self.image.load()
+        for y in range(height):
+            for x in range(width):
+                if pixdata[x, y] == (255, 255, 255, 255):
+                    pixdata[x, y] = (255, 255, 255, 0)
+                if pixdata[x, y][0] < 5 and pixdata[x, y][1] < 5 and pixdata[x, y][2] < 5:
+                    pixdata[x, y] = (0, 0, 0, 0)
+
+        self.surface  = Image.new(color_scheme, (width, height * 10), (0,0,0,0))
         self.width, self.height = self.surface.size
 
         self.active_row = [(0,0,0)] * self.width
@@ -44,31 +55,28 @@ class Animation:
         self.flamed_ms = 0
 
         min_width = self.surface.width // 4
-        min_heigh = self.surface.height // 20
+        min_height = self.surface.height // 20
 
         width = rand(min_width, self.surface.width)
-        heigh = rand(min_heigh, self.surface.height)
-        size = (width, heigh)
+        height = rand(min_height, self.surface.height)
+        size = (width, height)
         opacity = rand(63, int(self.brightness * 255)) 
         new_image =  self.image.copy().resize(size)
-        new_image.putalpha(opacity)
-        xy = (rand(0, self.image.width - width), 0)
+        
+        xy = (rand(0, self.surface.width - width), rand(0, self.surface.height - height))
 
         bg = Image.new(color_scheme, self.surface.size, (0,0,0,0))
         bg.paste(self.surface, (0,0))
         bg.paste(new_image, xy, mask=new_image)
 
-
         self.surface = bg
-
-        # self._screenshot(self.surface, 'after_op=' + str(opacity))
-    
+        # self._screenshot(self.surface)
         del new_image, bg
 
     def _screenshot(self, image, suffix = ''):
         if suffix is not '':
             suffix ="_" + suffix
-        filename = "new_img_" + str(self.frame_count) + suffix
+        filename = "new_img_"  + suffix
         if color_scheme == 'RGBA':
             format = "PNG"
             filename +=  ".png"
@@ -105,7 +113,6 @@ class Animation:
         bg.paste(self.surface, (0,0) )
         self.surface = bg
 
-        self._screenshot(self.surface)
 
         if self.flamed_ms > self.flame_next_in_ms:
             self.add_image()
