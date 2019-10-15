@@ -71,7 +71,7 @@ class Animation:
         bg.paste(new_image, xy, mask=new_image)
 
         self.surface = bg
-        self._screenshot(self.surface)
+        # self._screenshot(self.surface)
         del new_image, bg
 
     def _screenshot(self, image, suffix = ''):

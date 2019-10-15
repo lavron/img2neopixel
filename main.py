@@ -7,7 +7,8 @@ import neopixel
 
 
 image_src = "images/fire2.jpg"
-# image_src = "images/fire2-transparent.png"
+# image_src = "images/amoled-4.jpg"
+# image_src = "images/Fire-Wallpaper-HD.jpg"
 leds_pin = board.D18
 
 leds_num = 25
