@@ -23,7 +23,7 @@ class Animation:
         proportion = height / width
 
 
-        self.image = self.image.resize((leds_num, int(leds_num * proportion)))
+        self.image = self.image.resize((leds_num, int(leds_num * proportion * 10)))
         width, height = self.image.size
 
 
@@ -36,7 +36,7 @@ class Animation:
                 if pixdata[x, y][0] < 5 and pixdata[x, y][1] < 5 and pixdata[x, y][2] < 5:
                     pixdata[x, y] = (0, 0, 0, 0)
 
-        self.surface  = Image.new(color_scheme, (width, height * 10), (0,0,0,0))
+        self.surface  = Image.new(color_scheme, (width, height), (0,0,0,0))
         self.width, self.height = self.surface.size
 
         self.active_row = [(0,0,0)] * self.width
@@ -55,7 +55,7 @@ class Animation:
         self.flamed_ms = 0
 
         min_width = self.surface.width // 4
-        min_height = self.surface.height // 20
+        min_height = self.surface.height // 10
 
         width = rand(min_width, self.surface.width)
         height = rand(min_height, self.surface.height)
@@ -63,20 +63,21 @@ class Animation:
         opacity = rand(63, int(self.brightness * 255)) 
         new_image =  self.image.copy().resize(size)
         
-        xy = (rand(0, self.surface.width - width), rand(0, self.surface.height - height))
+        # xy = (rand(0, self.surface.width - width), rand(0, self.surface.height - height))
+        xy = (rand(0, self.surface.width - width), 0)
 
         bg = Image.new(color_scheme, self.surface.size, (0,0,0,0))
         bg.paste(self.surface, (0,0))
         bg.paste(new_image, xy, mask=new_image)
 
         self.surface = bg
-        # self._screenshot(self.surface)
+        self._screenshot(self.surface)
         del new_image, bg
 
     def _screenshot(self, image, suffix = ''):
         if suffix is not '':
             suffix ="_" + suffix
-        filename = "new_img_"  + suffix
+        filename = "img_"  + suffix + str(self.frame_count)
         if color_scheme == 'RGBA':
             format = "PNG"
             filename +=  ".png"
