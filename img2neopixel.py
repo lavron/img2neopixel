@@ -100,13 +100,18 @@ class Animation:
             
         bg = Image.new(color_scheme, (w, h), (0,0,0,0))
 
-        self._screenshot(self.surface, '__before' +  str(self.surface.size))
+
+        self._screenshot(self.surface, '___before' +  str(self.surface.size))
+
         self.surface = self.surface.crop((0, move, w, h))
-        self._screenshot(self.surface, '_after' + str(self.surface.size) + str(move))
+
+        self._screenshot(self.surface, '__after' + str(self.surface.size) + str(move))
         # self._screenshot(bg)
 
         bg.paste(self.surface, (0,0) )
         self.surface = bg
+
+        self._screenshot(self.surface, '_after_glue' + str(self.surface.size) + str(move))
 
         if self.flamed_ms > self.flame_next_in_ms:
             self.add_image()
