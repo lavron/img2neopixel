@@ -7,7 +7,7 @@ Initialy developed for the Fire animation.
 
 Create movie-like image with a trace of flame. Show it row-by-row on the LED strip.
 
-![python's fire animation on the WS2812B strip](https://github.com/lavron/img2neopixel/blob/master/img/preview.gif)
+![python's fire animation on the WS2812B strip](https://github.com/lavron/img2neopixel/blob/master/images/preview.gif)
 
 
 ## Getting Started
