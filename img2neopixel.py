@@ -15,7 +15,7 @@ FADEOUT = 2
 
 
 class Animation:
-    def __init__(self, image_src, leds_num, brightness, speed, intencivity):
+    def __init__(self, image_src, leds_num, brightness = 1, speed = 25, intencivity = 1):
 
         self.brightness = brightness
 
@@ -116,10 +116,6 @@ class Animation:
         
         if self.flamed_ms > self.flame_next_in_ms:
             self._add_flame()
-
-        # if self.frame_count % 5 == 0:
-        #     self._screenshot(self.surface)
-            
     
 
     def _screenshot(self, image, suffix = ''):
