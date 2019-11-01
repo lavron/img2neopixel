@@ -6,9 +6,8 @@ import datetime
 from PIL import Image
 import time
 import sys
-from machine import Pin
 
-color_scheme = 'RGBA'
+color_scheme = 'RGB'
 
 OFF = 0
 FIRE = 1
@@ -18,8 +17,7 @@ class SingleAnimation:
     def __init__(self, strip, image_src, duration_s, *fps):
         fps = fps or 25
         start_ms = time.time()
-        self.brightness = 127 # 0-255
-        self.width = strip['num']
+        self.brightness = 127 # 0-255g
 
         try:
             self.image = Image.open(image_src).convert(color_scheme)
@@ -27,7 +25,7 @@ class SingleAnimation:
             print ("Exception:", str(e))
             sys.exit(1)
 
-        self.image = self.image.resize(Pin((strip['num']), duration_s * fps))
+        self.image = self.image.resize((strip['num'], duration_s * fps))
 
         self.strip = neopixel.NeoPixel(strip['pin'],
                           strip['num'],
@@ -36,25 +34,22 @@ class SingleAnimation:
                           pixel_order=neopixel.GRB)
 
         pixel = (0,0,0,0) if color_scheme is 'RGBA' else (0,0,0)
-        self.active_row = [pixel] * self.width
+        self.active_row = [pixel] * self.image.size[0]
 
-        print("loaded in in {} ms".format(time() - start_ms))
+        self.active = True
+
+        print("loaded in", (time.time() - start_ms), "ms")
 
     def move_to_next_frame(self):
         w, h = self.image.size()
 
         if h == 0:
-            self.active_row = False
+            self.active = False
             return
 
-        for i in range(self.width):
-            try: 
-                self.active_row[i] = self.image.getpixel((i, 0))
-                if color_scheme is 'RGBA': # RGBA -> RGB
-                    r,g, b, a = self.active_row[i]
-                    self.active_row[i] = (r, g, b)
+        
+        self.strip = [self.image.getpixel((i,0)) for i in range(self.image.size[0])]
 
-            except Exception as err: 
-                print(err)
+        self.strip.show()
 
-        self.image = self.image.crop((0, 1, w, h))
+        self.strip
