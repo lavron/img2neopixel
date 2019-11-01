@@ -1,29 +1,28 @@
 from img2neopixel import Animation, SingleAnimation
 import time
+import os
 
-image_src = "images/fire.jpg"
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+
 
 strip = {
     'pin' : 18,
     'num' : 25
 }
-   
-
-
-brightness = 127 # 0-255
-
-# animation = Animation(strip, image_src, max_brightness)
-
+image_src = dname + "images/fire.jpg"
 duration_s = 10
 
-single_animation = SingleAnimation(strip, image_src, duration_s, brightness)
+animation = SingleAnimation(strip, image_src, duration_s)
 
-while True:
+frame = animation.active_row
+
+while frame:
     time.sleep(0.04) # == 25fps
 
-    animation.process()
-    for i, led in animation.active_row:
+    for i, led in frame:
         strip[i] = led
 
     strip.show()
+    animation.move_to_next_frame()
 
