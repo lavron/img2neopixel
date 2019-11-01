@@ -15,7 +15,7 @@ FADEOUT = 2
 
 
 class Animation:
-    def __init__(self, image_src, leds_num, brightness, speed, intencivity):
+    def __init__(self, image_src, leds_num, brightness = 1, speed = 25, intencivity = 1):
 
         self.brightness = brightness
 
@@ -48,7 +48,11 @@ class Animation:
 
         self._set_next_flame_time()
 
+<<<<<<< HEAD
         self.state = OFF
+=======
+        self.state = FIRE
+>>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
         
     def _set_next_flame_time(self):
         self.flame_next_in_ms = rand(self.ms_from, self.ms_to)
@@ -116,8 +120,25 @@ class Animation:
         
         if self.flamed_ms > self.flame_next_in_ms:
             self._add_flame()
+<<<<<<< HEAD
             
         # self._screenshot(self.surface)
 
 
     def _screenshot(self, image, suffix = ''):
+=======
+    
+
+    def _screenshot(self, image, suffix = ''):
+        if suffix is not '':
+            suffix ="_" + suffix
+        # filename = "img_"  + suffix + str(self.frame_count)
+        filename = "img_"
+        if color_scheme == 'RGBA':
+            format = "PNG"
+            filename +=  ".png"
+        else:
+            filename +=".jpg"
+            format = "JPEG"
+        image.save("images/tmp/" + filename, format=format)
+>>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
