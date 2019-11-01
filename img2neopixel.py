@@ -16,10 +16,10 @@ FADEOUT = 2
 class SingleAnimation:
     def __init__(self, strip, image_src, duration_s, *brightness):
         start_ms = time()
-        self.brightness = brightness or 127
+        self.brightness = brightness or 127 # 0-255
 
         self.image = Image.open(image_src).convert(color_scheme)
-        self.image = self.image.resize((strip['num'], int(strip['num'] )))
+        self.image = self.image.resize((strip['num'], duration_s * 25)) 
 
 
 class Animation:
