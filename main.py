@@ -16,8 +16,6 @@ duration_s = 10
 
 animation = SingleAnimation(strip, image_src, duration_s)
 
-frame = animation.active_row
-
 while animation.active:
     time.sleep(0.04) # == 25fps
     animation.move_to_next_frame()
