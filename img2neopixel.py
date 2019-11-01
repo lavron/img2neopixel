@@ -36,6 +36,9 @@ class SingleAnimation:
                           auto_write=False,
                           pixel_order=neopixel.GRB)
 
+        print("strip:", sys.getsizeof(self.strip))
+        print("image", sys.getsizeof(self.image))
+
         self.active = True
 
     def move_to_next_frame(self):
