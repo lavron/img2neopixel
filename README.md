@@ -1,11 +1,12 @@
 # Image To Neopixel
 
-Python library for the animations on the Neopixels (WS2812 etc)
+Python library for the animations on the Neopixels (WS2812 etc).
 Initialy developed for the Fire animation.
 
 ## Idea
 
-Create movie-like image with a trace of flame. Show it row-by-row on the LED strip.
+Create movie-like image with a trace of flame. Show it row-by-row frame-by-frame on the LED strip.
+
 
 ![python's fire animation on the WS2812B strip](https://github.com/lavron/img2neopixel/blob/master/images/preview.gif)
 
@@ -28,6 +29,9 @@ while True:
 Check this video with Fire animation running on the WS2812B strip:
 https://www.youtube.com/watch?v=rvxla5R7XIY
 
+
+## Versions
+v0.2.0 speed 1 row per 1 frame
 
 ## License
 

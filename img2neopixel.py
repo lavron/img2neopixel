@@ -13,15 +13,25 @@ FIRE = 1
 FADEOUT = 2
 
 
+class SingleAnimation:
+    def __init__(self, strip, image_src, duration_s, *brightness):
+        start_ms = time()
+        self.brightness = brightness or 127
+
+        self.image = Image.open(image_src).convert(color_scheme)
+        self.image = self.image.resize((strip['num'], int(strip['num'] )))
+
 
 class Animation:
-    def __init__(self, image_src, leds_num, brightness = 1, speed = 25, intencivity = 1):
 
-        self.brightness = brightness
+    def __init__(self, leds_pin, leds_num, image_src, *brightness):
 
-        self.row_ms = 1000 / speed
-        
+        start_ms = time()
+
+        self.brightness = brightness or 127
+
         self.image = Image.open(image_src).convert(color_scheme)
+
         width, height = self.image.size
         proportion = height / width
 
@@ -49,6 +59,9 @@ class Animation:
         self._set_next_flame_time()
 
         self.state = FIRE
+
+        print("loaded in in {} ms {:06d}\n".format(time() - start_ms))
+
         
     def _set_next_flame_time(self):
         self.flame_next_in_ms = rand(self.ms_from, self.ms_to)
@@ -59,7 +72,7 @@ class Animation:
         width = rand(self.surface.width // 3, self.surface.width)
         height = rand(self.surface.height // 10, self.surface.height)
         size = (width, height)
-        opacity = rand(63, int(self.brightness * 255)) 
+        opacity = rand(63, int(self.brightness)) 
         new_image =  self.image.copy().resize(size)
     
 
@@ -80,7 +93,7 @@ class Animation:
         if self.state == FADEOUT:
             elapsed_ms = elapsed_ms *5
 
-        move = elapsed_ms // self.row_ms
+        move = elapsed_ms // 0.04
 
         self.flamed_ms += elapsed_ms
 
