@@ -33,9 +33,6 @@ class SingleAnimation:
                           auto_write=False,
                           pixel_order=neopixel.GRB)
 
-        pixel = (0,0,0,0) if color_scheme is 'RGBA' else (0,0,0)
-        self.active_row = [pixel] * self.image.size[0]
-
         self.active = True
 
         print("loaded in", (time.time() - start_ms), "ms")
@@ -51,5 +48,4 @@ class SingleAnimation:
         self.strip = [self.image.getpixel((i,0)) for i in range(self.image.size[0])]
 
         self.strip.show()
-
-        self.strip
+        
