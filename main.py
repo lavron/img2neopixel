@@ -1,4 +1,4 @@
-from img2neopixel import Animation, SingleAnimation
+from img2neopixel import SingleAnimation
 import time
 import os
 
@@ -10,7 +10,7 @@ strip = {
     'pin' : 18,
     'num' : 25
 }
-image_src = dname + "images/fire.jpg"
+image_src = dname + "/images/fire.jpg"
 duration_s = 10
 
 animation = SingleAnimation(strip, image_src, duration_s)
@@ -25,4 +25,3 @@ while frame:
 
     strip.show()
     animation.move_to_next_frame()
-
