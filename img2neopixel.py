@@ -11,8 +11,6 @@ import os
 
 color_scheme = 'RGB'
 
-abspath = os.path.abspath(__file__)
-root_dir = os.path.dirname(abspath) + "/images/"
 
 OFF = 0
 FIRE = 1
@@ -35,8 +33,9 @@ class SingleAnimation:
 
         for image_src in images_src:
             try:
-                image = Image.open(root_dir + image_src).convert(color_scheme)
+                image = Image.open(image_src).convert(color_scheme)
                 image = image.resize((self.width, self.height))
+                image = image.transpose(Image.FLIP_LEFT_RIGHT)
                 self.images.append(image) 
             except OSError as e:
                 print ("Error:", str(e))
@@ -54,7 +53,7 @@ class SingleAnimation:
 
         self.active_image = self.images[self.active_image_id]
 
-        print("img2neopixel boot finished")
+        print("start image", self.images_src[self.active_image_id])
 
     def on(self):
         self.active = True
