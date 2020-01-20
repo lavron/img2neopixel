@@ -13,15 +13,15 @@ Create movie-like image with a trace of flame. Show it row-by-row on the LED str
 ## Getting Started
 
 ```python
-animation = Animation("images/fire.jpg", leds_num)
+images_src = [
+    '00.jpg',
+    '01.jpg'
+]
+animation = SingleAnimation(strip, images_src, duration_s)
 
-while True:
-    time.sleep(0.04) # 25 frames per second
-
-    animation.process()
-    for i, led in animation.active_row:
-        strip[i] = led
-    strip.show()
+ while True:
+    time.sleep(0.04) # == 25fps
+    animation.move_to_next_frame()
 
 ```
 

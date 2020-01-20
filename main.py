@@ -43,7 +43,6 @@ animation.clear_strip()
 
 
 def process_animation():
-    prev_state = False
     while True:
         time.sleep(0.04) # == 25fps
         animation.move_to_next_frame()
