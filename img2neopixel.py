@@ -5,140 +5,108 @@ import neopixel
 import datetime
 from PIL import Image
 import time
-
-color_scheme = 'RGBA'
-
-OFF = 0
-FIRE = 1
-FADEOUT = 2
+import sys
+import os
 
 
+color_scheme = 'RGB'
 
-class Animation:
-    def __init__(self, image_src, leds_num, brightness = 1, speed = 25, intencivity = 1):
+class SingleAnimation:
 
-        self.brightness = brightness
-
-        self.row_ms = 1000 / speed
-        
-        self.image = Image.open(image_src).convert(color_scheme)
-        width, height = self.image.size
-        proportion = height / width
-
-
-        self.image = self.image.resize((leds_num, int(leds_num * proportion * 10)))
-        width, height = self.image.size
-
-        pixdata =  self.image.load()
-        for y in range(height):
-            for x in range(width):
-                if pixdata[x, y] == (255, 255, 255, 255):
-                    pixdata[x, y] = (255, 255, 255, 0)
-                if pixdata[x, y][0] < 5 and pixdata[x, y][1] < 5 and pixdata[x, y][2] < 5:
-                    pixdata[x, y] = (0, 0, 0, 0)
-
-        self.surface  = Image.new(color_scheme, (width, height), (0,0,0,0))
-        self.width, self.height = self.surface.size
-
-        self.active_row = [(0,0,0)] * self.width
-        self.ts =int(round(time.time() * 1000))
-        self.frame_count = 0
-
-        self.ms_from, self.ms_to = int(1/intencivity * 0.5 * 1000), int(1/intencivity * 1.5 * 1000)
-
-        self._set_next_flame_time()
-
-<<<<<<< HEAD
-        self.state = OFF
-=======
-        self.state = FIRE
->>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
-        
-    def _set_next_flame_time(self):
-        self.flame_next_in_ms = rand(self.ms_from, self.ms_to)
-        self.flamed_ms = 0
-
-    def _add_flame(self):
-
-        width = rand(self.surface.width // 3, self.surface.width)
-        height = rand(self.surface.height // 10, self.surface.height)
-        size = (width, height)
-        opacity = rand(63, int(self.brightness * 255)) 
-        new_image =  self.image.copy().resize(size)
+    active_id = 0
+    frame = 0
+    state = True
+    images = []
     
+    def __init__(self, strip, images_src, duration_s, *fps):
+        self.fps = fps or 25
+        # fps = fps or 1
+        self.duration_s = duration_s
+        self.width = strip['num']
+        self.height = duration_s * self.fps
 
-        bg = Image.new(color_scheme, self.surface.size, (0,0,0,0))
-        bg.paste(self.surface, (0,0))
-        bg.paste(new_image, (rand(0, self.surface.width - width), 0), mask=new_image)
+        self.images_src = images_src
 
-        self.surface = bg
-        del new_image, bg
+        for image_src in images_src:
+            try:
+                image = Image.open(image_src).convert(color_scheme)
+                image = image.resize((self.width, self.height))
+                image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                self.images.append(image) 
+            except OSError as e:
+                print ("Error:", str(e))
 
-        self._set_next_flame_time()
+        self.images_count = len(self.images)
 
-    def process(self):
-            
-        self.frame_count +=1
-        ts = time.time() * 1000
-        elapsed_ms = int(ts - self.ts)
-        if self.state == FADEOUT:
-            elapsed_ms = elapsed_ms *5
+        if self.images_count == 0:
+            print("no images")
+            sys.exit(1)
 
-        move = elapsed_ms // self.row_ms
+        self.strip = neopixel.NeoPixel(strip['pin'],
+                          strip['num'],
+                          brightness=0.1,
+                          auto_write=False)
 
-        self.flamed_ms += elapsed_ms
+        self.active_image = self.images[self.active_id]
 
-        w, h = self.surface.size
+        print("start image", self.images_src[self.active_id])
+        # self.active_image.show()
 
-        if h <= move: # fadeout is finished
-            self.state = OFF
-            self.surface  = Image.new(color_scheme, self.image.size, (0,0,0,0))
-            return 
+    def clear_strip(self):
+        self.strip.fill((0,0,0))
+        self.strip.show()
+    
+    def brightness_set(self, brightness):
+        self.strip.brightness = min (1, max(0, brightness))
 
+    def brightness_plus(self):
+        if self.strip.brightness < 1:
+           self.strip.brightness =+ 0.1
+
+    def brightness_minus(self):
+        if self.strip.brightness > 0:
+            self.strip.brightness =- 0.1
+
+    def faster():
+        pass
+    def slower():
+        pass
+
+    def set_image(self, _id):
+        try:
+            self.active_image = self.images[_id]
+            self.active_id = _id
+        except IndexError:
+            print('no image', _id)
+
+        self.frame = 0
+        src = self.images_src[self.active_id]
+        print(src)
+        return src
+
+    def next_image(self, direction = 1):
+        
+        self.active_id = direction + self.active_id
+
+        if direction == 1 and self.active_id == self.images_count:
+            self.active_id = 0
+
+        if direction == -1 and self.active_id == 0:
+            self.active_id = self.images_count - 1
+
+        return os.path.basename(self.set_image(self.active_id))
+    
+    def move_to_next_frame(self):
+        if self.frame == self.active_image.size[1]:
+            # self.next_image() 
+            self.frame = 0
+
+        self.show_frame()
+        self.frame +=1
+
+    def show_frame(self):
         for i in range(self.width):
-            try: 
-                self.active_row[i] = self.surface.getpixel((i, move))
-                if len(self.active_row[i]) == 4:
-                    r,g, b, a = self.active_row[i]
-                    self.active_row[i] = (r, g, b)
+            self.strip[i] = self.active_image.getpixel((i,self.frame))
 
-            except Exception as err: 
-                print(err)
-                print("i, move:", i, move)
-            
+        self.strip.show()
 
-        self.surface = self.surface.crop((0, move, w, h))
-        self.ts = ts 
-
-        if self.state == FADEOUT:
-            return
-
-        bg = Image.new(color_scheme, (w, h), (0,0,0,0))
-        bg.paste(self.surface, (0,0) )
-        self.surface = bg
-        del bg 
-        
-        if self.flamed_ms > self.flame_next_in_ms:
-            self._add_flame()
-<<<<<<< HEAD
-            
-        # self._screenshot(self.surface)
-
-
-    def _screenshot(self, image, suffix = ''):
-=======
-    
-
-    def _screenshot(self, image, suffix = ''):
-        if suffix is not '':
-            suffix ="_" + suffix
-        # filename = "img_"  + suffix + str(self.frame_count)
-        filename = "img_"
-        if color_scheme == 'RGBA':
-            format = "PNG"
-            filename +=  ".png"
-        else:
-            filename +=".jpg"
-            format = "JPEG"
-        image.save("images/tmp/" + filename, format=format)
->>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11

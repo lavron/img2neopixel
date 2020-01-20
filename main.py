@@ -1,58 +1,51 @@
-import neopixel
-from img2neopixel import Animation
+from img2neopixel import SingleAnimation
 import time
+import board
+import os
 
-image_src = "images/fire.jpg"
 
-<<<<<<< HEAD
-image_src = "images/fire2.jpg"
-# image_src = "images/amoled-4.jpg"
-# image_src = "images/Fire-Wallpaper-HD.jpg"
-strip_pin = board.D18
 
-strip_num = 25
-max_brightness = 0.5
-speed = 25 # rows per second 
-intencivity = 1 # new flame per second
-# fps = 2
-=======
-leds_pin = 18
-leds_num = 25
+images_src = [
+    # 'curiosity.jpg',
+    'sunrise01.jpg',
+    'sunset01.jpg',
+    '00.jpg',
+    '01.jpg',
+    '03.jpg',
+    '13.jpg',
+    '14.jpg',
+    '21.jpg',
+    '22.jpg',
+    '24.jpg',
+    '25.jpg',
+    '26.jpg',
+    '27.jpg',
+]
 
-max_brightness = 1
-speed = 25  # rows per second, tuning purposes
-intencivity = 1  # new flame per second, tuning purposes
->>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
-fps = 25
+strip = {
+    'pin' : board.D18,
+    'num' : 112
+}
 
-strip = neopixel.NeoPixel(leds_pin,
-                          leds_num,
-                          brightness=max_brightness,
-                          auto_write=False,
-                          pixel_order=neopixel.GRB)
+duration_s = 20
 
-<<<<<<< HEAD
-strip = neopixel.NeoPixel(strip_pin, strip_num, brightness = max_brightness, auto_write=False, pixel_order = neopixel.GRB)
-animation = Animation(image_src, strip_num, max_brightness, speed, intencivity)
-=======
-animation = Animation(image_src, leds_num, max_brightness, speed, intencivity)
->>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
+abspath = os.path.abspath(__file__)
+root_dir = os.path.dirname(abspath) + "/images/"
 
-sleep_s = 1 / fps
+for i, src in enumerate(images_src): 
+    images_src[i] = root_dir + images_src[i]
 
-while True:
-    time.sleep(sleep_s)
 
-    animation.process()
-<<<<<<< HEAD
-    i = 0
-    # print("animation.active_row:", animation.active_row)
-    for led in animation.active_row:
-        strip[i] = led
-        i +=1
-=======
-    for i, led in animation.active_row:
-        strip[i] = led
->>>>>>> 009eaf5bb299a2070dfa23c226e7362faaa84e11
-    strip.show()
+animation = SingleAnimation(strip, images_src, duration_s)
+animation.state = True
 
+animation.clear_strip()
+
+
+def process_animation():
+    prev_state = False
+    while True:
+        time.sleep(0.04) # == 25fps
+        animation.move_to_next_frame()
+
+process_animation()
