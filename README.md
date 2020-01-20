@@ -13,6 +13,12 @@ Create movie-like image with a trace of flame. Show it row-by-row on the LED str
 ## Getting Started
 
 ```python
+
+strip = {
+    'pin' : board.D18,
+    'num' : 60
+}
+
 images_src = [
     '00.jpg',
     '01.jpg'
